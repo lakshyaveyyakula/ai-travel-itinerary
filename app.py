@@ -18,6 +18,31 @@ def get_weather(city):
         data = r.json()
         return f"{data['main']['temp']}°C and {data['weather'][0]['description']}"
     return "Weather data unavailable"
+
+
+def get_events(city):
+    url = "https://www.eventbriteapi.com/v3/events/search/"
+    headers = {
+        "Authorization": f"Bearer {st.secrets['EVENTBRITE_API_KEY']}"
+    }
+    params = {
+        "location.address": city,
+        "sort_by": "date",
+        "expand": "venue"
+    }
+    r = requests.get(url, headers=headers, params=params)
+    
+    if r.status_code == 200:
+        events_data = r.json().get("events", [])
+        # Get the first 3 events to keep the prompt short
+        event_list = []
+        for e in events_data[:3]:
+            name = e.get("name", {}).get("text", "Event")
+            start = e.get("start", {}).get("local", "")
+            event_list.append(f"{name} (Starts: {start})")
+        return ", ".join(event_list) if event_list else "No upcoming events found."
+    return "Event data unavailable"
+    
 SYSTEM_PROMPT = """
 You are a travel assitant chatbot for suggesting places.
 
@@ -51,8 +76,10 @@ if user_input:
     st.chat_message("user").markdown(user_input)
 
     weather_info = get_weather(user_input)
+    event_info = get_events(user_input)
 # Now Gemini knows if it's muggy, cold, or perfect for a hike!
     conversation = SYSTEM_PROMPT + f"\n[REAL-TIME WEATHER]: {weather_info}\n"
+    conversation += f"[REAL-TIME EVENTS]: {event_info}\n"
     for msg in st.session_state.messages:
         role = msg["role"]
         content = msg["content"]
