@@ -27,20 +27,16 @@ def get_events(city):
     }
     params = {
         "location.address": city,
-        "sort_by": "date",
-        "expand": "venue"
+        "page_size": 3
     }
     r = requests.get(url, headers=headers, params=params)
     
     if r.status_code == 200:
-        events_data = r.json().get("events", [])
-        # Get the first 3 events to keep the prompt short
-        event_list = []
-        for e in events_data[:3]:
-            name = e.get("name", {}).get("text", "Event")
-            start = e.get("start", {}).get("local", "")
-            event_list.append(f"{name} (Starts: {start})")
-        return ", ".join(event_list) if event_list else "No upcoming events found."
+        data = r.json()
+        events = data.get("events", [])
+        # Extract names into a list
+        names = [e.get("name", {}).get("text", "Event") for e in events]
+        return ", ".join(names) if names else "No events found"
     return "Event data unavailable"
     
 SYSTEM_PROMPT = """
