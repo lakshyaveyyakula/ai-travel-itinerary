@@ -1,67 +1,58 @@
 import streamlit as st
-from rag.realtime import fetch_google_places, fetch_eventbrite_events, fetch_weather
-from rag.embed import build_index
-from agent.agent import agent
+from google import genai
 
-st.set_page_config(page_title="AI Travel Itinerary Generator", layout="wide")
+st.set_page_config(page_title="AI Travel Itinerary Generator", layout="centered")
+
+client = genai.Client(api_key=st.secrest["GEMINI_API_KEY"])
+
+SYSTEM_PROMPT = """
+You are a travel assitant chatbot for suggesting places.
+
+You have to access to previous messages in the chat session.
+Use this memory to provide consistent and helpful responses.
+Do not claim that you have no memory of the conversation.
+
+Guidelines:
+- Provide general travel advice based on the destination entered.
+- Do not claim any information as 100 percent accurate like time.
+- Give general suggestions about places that are close to the mentioned destination.
+- Be calm, energized and professional.
+"""
 st.title("AI Travel Itinerary Generator")
+st.caption("Powered by AI")
 
-# --- Load API keys from Streamlit secrets ---
-GOOGLE_PLACES_KEY = st.secrets["GOOGLE_PLACES_KEY"]
-EVENTBRITE_KEY = st.secrets.get("EVENTBRITE_KEY", "")
-WEATHER_KEY = st.secrets.get("WEATHER_KEY", "")
+#Messages 
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-# --- User Inputs ---
-destination = st.text_input("Enter your destination", "")
-budget = st.number_input("Enter your budget ($)", min_value=0, value=1000, step=50)
-days = st.number_input("Number of days", min_value=1, max_value=14, value=3)
+#previous messages 
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]):
+        st.markdown(msg["content"])
+#inputs
+user_input = st.chat_input("Enter your destination", "")
+#budget = st.number_input("Enter your budget ($)", min_value=0, value=1000, step=50)
+#days = st.number_input("Number of days", min_value=1, max_value=14, value=3)
 
-# Default interests
-default_interests = ["food", "nature", "sightseeing"]
+if destination:
+    st.session_state.messages.append({"role": "user", "content": destination})
+    st.chat_message("user").markdown(user_input)
+    conversation = SYSTEM_PROMPT + "\n"    
+    for msg in st.session_state.messages:
+        role = msg["role"]
+        content = msg["content"]
+        conversation +=f"{role.capitalize()}: {content}\n"
 
-if st.button("Generate Itinerary"):
 
-    if not destination:
-        st.warning("Please enter a destination!")
-    else:
-        with st.spinner("Fetching real-time data..."):
+    response = client.models.generate_content(
+        model = "gemini-2.5-flash",
+        contents=conversation
+    )
+    reply = response.text
+    st.session_state.messages.append({"role": "assistant", "content": reply})
+    st.chat_message("assistant").markdown(reply)
+    MAX_MESSAGES = 50
+    st.session_state.messages = st.session_state.messages[-MAX_MESSAGES:]
+    st.warning("not a professional chatbot")
 
-            documents = []
 
-            # --- Fetch attractions / hotels ---
-            for interest in default_interests:
-                documents += fetch_google_places(destination, interest, GOOGLE_PLACES_KEY)
-
-            # --- Fetch events ---
-            documents += fetch_eventbrite_events(destination, EVENTBRITE_KEY)
-
-            # --- Fetch weather ---
-            weather_info = fetch_weather(destination, WEATHER_KEY)
-            if weather_info:
-                documents.append(weather_info)
-
-            # --- Check if data fetched ---
-            if not documents:
-                st.error("No data fetched. Check your API keys or destination.")
-            else:
-                # --- Build embeddings & generate itinerary ---
-                index = build_index(documents)
-                user_input = f"{days}-day trip to {destination} focusing on food, nature, sightseeing"
-
-                itinerary = agent(
-                    user_input=user_input,
-                    index=index,
-                    documents=documents,
-                    budget=budget,
-                    days=days,
-                    interests=", ".join(default_interests)
-                )
-
-                # --- Display nicely with expandable day sections ---
-                st.subheader("📝 Your Personalized Itinerary")
-                days_sections = itinerary.split("Day")
-                for d in days_sections:
-                    if d.strip():
-                        day_title = "Day " + d.strip().split(":", 1)[0]
-                        day_content = d.strip().split(":", 1)[1] if ":" in d else d.strip()
-                        st.expander(day_title).text(day_content)
