@@ -39,14 +39,16 @@ def get_weather(city):
         "units": "metric"
     }
     r = requests.get(url, params=params, timeout=10)
-    r.raise_for_status()
-    data = r.json()
-    return {
-        "temp": data.get("main", {}).get("temp"),
-        "feels_like": data.get("main", {}).get("feels_like"),
-        "humidity": data.get("main", {}).get("humidity"),
-        "description": data.get("weather", [{}])[0].get("description"),
-    }
+    if r.status_code == 200:
+        data = r.json()
+        return {
+            "temp": data.get("main", {}).get("temp"),
+            "feels_like": data.get("main", {}).get("feels_like"),
+            "humidity": data.get("main", {}).get("humidity"),
+            "description": data.get("weather", [{}])[0].get("description"),
+        }
+    else:
+        return None
 #inputs
 user_input = st.chat_input("Enter your destination")
 
@@ -54,7 +56,7 @@ if user_input:
     st.session_state.messages.append({"role": "user", "content": user_input})
     st.chat_message("user").markdown(user_input)
     weather = get_weather(user_input)
-    if weather.get("temp") is not None:
+    if weather_data:
         weather_info = f"Current weather in {user_input}: {weather['temp']}°C and {weather['description']}."
     else:
         weather_info = "Weather data unavailable for this location."
