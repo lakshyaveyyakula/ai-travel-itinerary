@@ -55,17 +55,25 @@ user_input = st.chat_input("Enter your destination")
 if user_input:
     st.session_state.messages.append({"role": "user", "content": user_input})
     st.chat_message("user").markdown(user_input)
-    weather = get_weather(user_input)
-    if weather:
-        weather_info = f"Current weather in {user_input}: {weather['temp']}°C and {weather['description']}."
-    else:
-        weather_info = "Weather data unavailable for this location."
-     
-    conversation = SYSTEM_PROMPT + f"\n\nContext: {weather_info}/n"    
-    for msg in st.session_state.messages:
-        role = msg["role"]
-        content = msg["content"]
-        conversation +=f"{role.capitalize()}: {content}\n"
+
+weather = get_weather(user_input)
+
+if weather:
+    # Creating a more detailed "Real-Time Context" for the AI
+    weather_info = (
+        f"Current weather in {user_input}: {weather['temp']}°C "
+        f"(feels like {weather['feels_like']}°C), "
+        f"{weather['description']}, with {weather['humidity']}% humidity."
+    )
+else:
+    weather_info = "Weather data unavailable for this location."
+
+# Now Gemini knows if it's muggy, cold, or perfect for a hike!
+conversation = SYSTEM_PROMPT + f"\n\n[REAL-TIME DATA]: {weather_info}\n"
+for msg in st.session_state.messages:
+    role = msg["role"]
+    content = msg["content"]
+    conversation +=f"{role.capitalize()}: {content}\n"
 
 
     response = client.models.generate_content(
