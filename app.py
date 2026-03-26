@@ -51,6 +51,6 @@ if user_input:
     st.chat_message("assistant").markdown(reply)
     MAX_MESSAGES = 50
     st.session_state.messages = st.session_state.messages[-MAX_MESSAGES:]
-    st.warning("not a professional chatbot")
+    st.warning("It is not a professional chatbot, just for general information.")
 
 
