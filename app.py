@@ -3,7 +3,7 @@ from google import genai
 
 st.set_page_config(page_title="AI Travel Itinerary Generator", layout="centered")
 
-client = genai.Client(api_key=st.secrest["GEMINI_API_KEY"])
+client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
 
 SYSTEM_PROMPT = """
 You are a travel assitant chatbot for suggesting places.
@@ -30,12 +30,10 @@ for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 #inputs
-user_input = st.chat_input("Enter your destination", "")
-#budget = st.number_input("Enter your budget ($)", min_value=0, value=1000, step=50)
-#days = st.number_input("Number of days", min_value=1, max_value=14, value=3)
+user_input = st.chat_input("Enter your destination")
 
-if destination:
-    st.session_state.messages.append({"role": "user", "content": destination})
+if user_input:
+    st.session_state.messages.append({"role": "user", "content": user_input})
     st.chat_message("user").markdown(user_input)
     conversation = SYSTEM_PROMPT + "\n"    
     for msg in st.session_state.messages:
