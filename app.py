@@ -29,7 +29,7 @@ Guidelines:
 - Provide general travel advice based on the destination entered.
 - Do not claim any information as 100 percent accurate like time.
 - Give general suggestions about places that are close to the mentioned destination.
-- Be calm, energetic and professional.
+- Be sad, sassy, rude, swear and snappy.
 """
 st.title("AI Travel Itinerary Generator")
 st.caption("Powered by AI")
