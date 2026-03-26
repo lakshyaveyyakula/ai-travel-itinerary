@@ -1,6 +1,6 @@
 import streamlit as st
 from google import genai
-import requests 
+#import requests 
 
 st.set_page_config(page_title="AI Travel Planner", layout="centered")
 
@@ -31,24 +31,6 @@ for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
-def get_weather(city):
-    url = "https://api.openweathermap.org/data/2.5/weather?"
-    params = {
-        "q": city,
-        "appid": st.secrets["OPENWEATHER_API_KEY"],
-        "units": "metric"
-    }
-    r = requests.get(url, params=params, timeout=10)
-    if r.status_code == 200:
-        data = r.json()
-        return {
-            "temp": data.get("main", {}).get("temp"),
-            "feels_like": data.get("main", {}).get("feels_like"),
-            "humidity": data.get("main", {}).get("humidity"),
-            "description": data.get("weather", [{}])[0].get("description"),
-        }
-    else:
-        return None
 #inputs
 user_input = st.chat_input("Enter your destination")
 
@@ -56,20 +38,9 @@ if user_input:
     st.session_state.messages.append({"role": "user", "content": user_input})
     st.chat_message("user").markdown(user_input)
 
-weather = get_weather(user_input)
-
-if weather:
-    # Creating a more detailed "Real-Time Context" for the AI
-    weather_info = (
-        f"Current weather in {user_input}: {weather['temp']}°C "
-        f"(feels like {weather['feels_like']}°C), "
-        f"{weather['description']}, with {weather['humidity']}% humidity."
-    )
-else:
-    weather_info = "Weather data unavailable for this location."
 
 # Now Gemini knows if it's muggy, cold, or perfect for a hike!
-conversation = SYSTEM_PROMPT + f"\n\n[REAL-TIME DATA]: {weather_info}\n"
+conversation = SYSTEM_PROMPT + "\n"
 for msg in st.session_state.messages:
     role = msg["role"]
     content = msg["content"]
