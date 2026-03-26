@@ -1,5 +1,6 @@
 import streamlit as st
 from google import genai
+import requests 
 
 st.set_page_config(page_title="AI Travel Planner", layout="centered")
 
@@ -29,12 +30,30 @@ if "messages" not in st.session_state:
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
+
+def get_weather(city):
+   url = "https://api.openweathermap.org/data/2.5/weather"
+    params = {
+        "q": city,
+        "appid": st.secrets["OPENWEATHER_API_KEY"],
+        "units": "metric"
+    }
+    r = requests.get(url, params=params, timeout=10)
+    r.raise_for_status()
+    data = r.json()
+    return {
+        "temp": data.get("main", {}).get("temp"),
+        "feels_like": data.get("main", {}).get("feels_like"),
+        "humidity": data.get("main", {}).get("humidity"),
+        "description": data.get("weather", [{}])[0].get("description"),
+    }
 #inputs
 user_input = st.chat_input("Enter your destination")
 
 if user_input:
     st.session_state.messages.append({"role": "user", "content": user_input})
     st.chat_message("user").markdown(user_input)
+    weather = get_weather(user_input)
     conversation = SYSTEM_PROMPT + "\n"    
     for msg in st.session_state.messages:
         role = msg["role"]
