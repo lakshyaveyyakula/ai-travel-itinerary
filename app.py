@@ -32,7 +32,7 @@ for msg in st.session_state.messages:
         st.markdown(msg["content"])
 
 def get_weather(city):
-    url = "https://api.openweathermap.org/data/2.5/weather"
+    url = "https://api.openweathermap.org/data/2.5/weather?q={city name}&appid={API key}"
     params = {
         "q": city,
         "appid": st.secrets["OPENWEATHER_API_KEY"],
