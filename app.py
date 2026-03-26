@@ -54,7 +54,12 @@ if user_input:
     st.session_state.messages.append({"role": "user", "content": user_input})
     st.chat_message("user").markdown(user_input)
     weather = get_weather(user_input)
-    conversation = SYSTEM_PROMPT + "\n"    
+    if weather.get("temp") is not None:
+        weather_info = f"Current weather in {user_input}: {weather['temp']}°C and {weather['description']}."
+    else:
+        weather_info = "Weather data unavailable for this location."
+     
+    conversation = SYSTEM_PROMPT + f"\n\nContext: {weather_info}/n"    
     for msg in st.session_state.messages:
         role = msg["role"]
         content = msg["content"]
@@ -71,5 +76,4 @@ if user_input:
     MAX_MESSAGES = 50
     st.session_state.messages = st.session_state.messages[-MAX_MESSAGES:]
     st.warning("It is not a professional chatbot, just for general information.")
-
 
