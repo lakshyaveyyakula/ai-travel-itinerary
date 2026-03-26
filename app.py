@@ -47,14 +47,14 @@ for msg in st.session_state.messages:
     conversation +=f"{role.capitalize()}: {content}\n"
 
 
-    response = client.models.generate_content(
-        model = "gemini-2.5-flash",
-        contents=conversation
-    )
-    reply = response.text
-    st.session_state.messages.append({"role": "assistant", "content": reply})
-    st.chat_message("assistant").markdown(reply)
-    MAX_MESSAGES = 50
-    st.session_state.messages = st.session_state.messages[-MAX_MESSAGES:]
-    st.warning("It is not a professional chatbot, just for general information.")
+response = client.models.generate_content(
+    model = "gemini-2.5-flash",
+    contents=conversation
+)
+reply = response.text
+st.session_state.messages.append({"role": "assistant", "content": reply})
+st.chat_message("assistant").markdown(reply)
+MAX_MESSAGES = 50
+st.session_state.messages = st.session_state.messages[-MAX_MESSAGES:]
+st.warning("It is not a professional chatbot, just for general information.")
 
