@@ -56,7 +56,7 @@ if user_input:
     st.session_state.messages.append({"role": "user", "content": user_input})
     st.chat_message("user").markdown(user_input)
     weather = get_weather(user_input)
-    if weather_data:
+    if weather:
         weather_info = f"Current weather in {user_input}: {weather['temp']}°C and {weather['description']}."
     else:
         weather_info = "Weather data unavailable for this location."
