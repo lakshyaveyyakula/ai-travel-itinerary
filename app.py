@@ -93,7 +93,7 @@ if user_input:
 
     weather_info = get_weather(user_input)
     event_info = get_events(user_input)
-    hotel_info = get_hotels(user_input, target_date)
+    hotel_info = get_hotels(user_input, travel_date)
 # Now Gemini knows if it's muggy, cold, or perfect for a hike!
     conversation = SYSTEM_PROMPT + f"\n[REAL-TIME WEATHER]: {weather_info} | [EVENTS]: {event_info} | [HOTELS]: {hotel_info}\n"
     #conversation += f"[REAL-TIME EVENTS]: {event_info}\n"
