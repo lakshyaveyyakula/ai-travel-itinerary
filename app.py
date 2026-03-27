@@ -2,15 +2,12 @@ import streamlit as st
 from google import genai
 import requests 
 from datetime import date, timedelta
+st.sidebar.header("Travel Dates")
+check_in = st.sidebar.date_input("Check-in Date", date.today())
+check_out = st.sidebar.date_input("Check-out Date", date.today() + timedelta(days=3))
 st.set_page_config(page_title="AI Travel Planner", layout="centered")
 st.title("AI Travel Itinerary Generator")
 st.caption("Powered by AI")
-
-st.sidebar.header("Trip Details")
-today = date.today()
-future_date = today + timedelta(days=3)
-check_in = st.sidebar.date_input("Check-in Date", today)
-check_out = st.sidebar.date_input("Check-out Date", future_date)
 
 client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
 
