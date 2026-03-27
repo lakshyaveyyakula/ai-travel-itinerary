@@ -1,7 +1,7 @@
 import streamlit as st
 from google import genai
 import requests 
-from datetime import dat, timedelta
+from datetime import date, timedelta
 st.set_page_config(page_title="AI Travel Planner", layout="centered")
 st.title("AI Travel Itinerary Generator")
 st.caption("Powered by AI")
