@@ -20,24 +20,18 @@ def get_weather(city):
     return "Weather data unavailable"
 
 
-def get_events(city):
-    url = "https://www.eventbriteapi.com/v3/events/search/"
-    headers = {
-        "Authorization": f"Bearer {st.secrets['EVENTBRITE_API_KEY']}"
-    }
+def get_hotels(city):
+    url = "https://serpapi.com/search"
     params = {
-        "location.address": city,
-        "page_size": 3
+        "engine": "google_hotels",
+        "q": f"Hotels in {city}",
+        "api_key": st.secrets["SERP_API_KEY"]
     }
-    r = requests.get(url, headers=headers, params=params)
-    
+    r = requests.get(url, params=params)
     if r.status_code == 200:
-        data = r.json()
-        events = data.get("events", [])
-        # Extract names into a list
-        names = [e.get("name", {}).get("text", "Event") for e in events]
-        return ", ".join(names) if names else "No events found"
-    return "Event data unavailable"
+        hotels = r.json().get("properties", [])
+        return ", ".join([f"{h['name']} ({h.get('rate_per_night', {}).get('lowest', 'N/A')})" for h in hotels[:3]])
+    return "Hotel data unavailable"
     
 SYSTEM_PROMPT = """
 You are a travel assitant chatbot for suggesting places.
@@ -72,10 +66,11 @@ if user_input:
     st.chat_message("user").markdown(user_input)
 
     weather_info = get_weather(user_input)
-    event_info = get_events(user_input)
+    hotel_info = get_hotels(user_input)
 # Now Gemini knows if it's muggy, cold, or perfect for a hike!
-    conversation = SYSTEM_PROMPT + f"\n[REAL-TIME WEATHER]: {weather_info}\n"
-    conversation += f"[REAL-TIME EVENTS]: {event_info}\n"
+    #conversation = SYSTEM_PROMPT + f"\n[REAL-TIME WEATHER]: {weather_info}\n"
+    #conversation += f"[REAL-TIME EVENTS]: {event_info}\n"
+    conversation = SYSTEM_PROMPT + f"\n[CONTEXT] Weather: {weather_info} | Hotels: {hotel_info}\n"
     for msg in st.session_state.messages:
         role = msg["role"]
         content = msg["content"]
@@ -84,7 +79,7 @@ if user_input:
     response = client.models.generate_content(
         model = "gemini-2.5-flash",
         contents=conversation
-    )
+        )
     reply = response.text
     st.session_state.messages.append({"role": "assistant", "content": reply})
     st.chat_message("assistant").markdown(reply)
