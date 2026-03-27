@@ -24,7 +24,7 @@ def get_weather(city):
         return f"{data['main']['temp']}°C and {data['weather'][0]['description']}"
     return "Weather data unavailable"
 
-def get_hotels(city):
+def get_hotels(city, d1, d2):
     url = "https://serpapi.com/search.json"
     params = {
         "engine": "google_hotels",
