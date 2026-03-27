@@ -87,7 +87,7 @@ if user_input:
         conversation +=f"{role.capitalize()}: {content}\n"
     st.write(f"DEBUG: Sending to Gemini -> {conversation[:50]}...") # Shows just the start
     response = client.models.generate_content(
-        model = "gemini-2.0-flash",
+        model = "gemini-2.5-flash",
         contents=[conversation]
         )
     reply = response.text
