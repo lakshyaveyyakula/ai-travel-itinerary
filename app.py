@@ -85,10 +85,10 @@ if user_input:
         role = msg["role"]
         content = msg["content"]
         conversation +=f"{role.capitalize()}: {content}\n"
-
+    st.write(f"DEBUG: Sending to Gemini -> {conversation[:50]}...") # Shows just the start
     response = client.models.generate_content(
         model = "gemini-2.0-flash",
-        contents=conversation
+        contents=[conversation]
         )
     reply = response.text
     st.session_state.messages.append({"role": "assistant", "content": reply})
