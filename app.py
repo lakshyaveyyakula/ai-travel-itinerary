@@ -84,7 +84,6 @@ if user_input:
     weather_info = get_weather(user_input)
     event_info = get_events(user_input)
     hotel_info = get_hotels(user_input, check_in, check_out)
-    st.write(f"DEBUG: I found these hotels -> {hotel_info}")
     SYSTEM_PROMPT = f"""
     You are a travel assitant chatbot for suggesting places.
 
@@ -98,10 +97,7 @@ if user_input:
     - Give general suggestions about places that are close to the mentioned destination.
     - Be calm, energized, professional.
 """
-# Now Gemini knows if it's muggy, cold, or perfect for a hike!
     conversation = SYSTEM_PROMPT + f"\n[REAL-TIME WEATHER]: {weather_info} | [EVENTS]: {event_info} | [HOTELS]: {hotel_info}\n"
-    #conversation += f"[REAL-TIME EVENTS]: {event_info}\n"
-    #conversation = SYSTEM_PROMPT + f"\n[CONTEXT] Weather: {weather_info} | Hotels: {hotel_info}\n"
     for msg in st.session_state.messages:
         role = msg["role"]
         content = msg["content"]
