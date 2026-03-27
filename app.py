@@ -59,19 +59,6 @@ def get_hotels(city, travel_date):
     except:
         return "Could not connect to hotel service"
 
-SYSTEM_PROMPT = """
-You are a travel assitant chatbot for suggesting places.
-
-You have to access to previous messages in the chat session.
-Use this memory to provide consistent and helpful responses.
-Do not claim that you have no memory of the conversation.
-
-Guidelines:
-- Provide general travel advice based on the destination entered.
-- Do not claim any information as 100 percent accurate like time.
-- Give general suggestions about places that are close to the mentioned destination.
-- Be calm, energized, professional.
-"""
 st.title("AI Travel Itinerary Generator")
 st.caption("Powered by AI")
 
@@ -94,6 +81,20 @@ if user_input:
     weather_info = get_weather(user_input)
     event_info = get_events(user_input)
     hotel_info = get_hotels(user_input, travel_date)
+    st.write(f"DEBUG: I found these hotels -> {hotel_info}")
+    SYSTEM_PROMPT = f"""
+    You are a travel assitant chatbot for suggesting places.
+
+    You have to access to previous messages in the chat session.
+    Use this memory to provide consistent and helpful responses.
+    Do not claim that you have no memory of the conversation.
+    IMPORTANT: you have access to real time information. so you must mention weather {weather_info}, event information {event_info} and top 3 hotels {hotel_info}.
+    Guidelines:
+    - Provide general travel advice based on the destination entered.
+    - Do not claim any information as 100 percent accurate like time.
+    - Give general suggestions about places that are close to the mentioned destination.
+    - Be calm, energized, professional.
+"""
 # Now Gemini knows if it's muggy, cold, or perfect for a hike!
     conversation = SYSTEM_PROMPT + f"\n[REAL-TIME WEATHER]: {weather_info} | [EVENTS]: {event_info} | [HOTELS]: {hotel_info}\n"
     #conversation += f"[REAL-TIME EVENTS]: {event_info}\n"
