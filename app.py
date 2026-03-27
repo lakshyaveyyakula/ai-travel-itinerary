@@ -40,12 +40,12 @@ def get_events(city):
     except:
         return "Could not connect to event service"
 
-def get_hotels(city, target_date):
+def get_hotels(city, travel_date):
     url = "https://serpapi.com/search.json"
     params = {
         "engine": "google_hotels",
         "q": f"Hotels in {city}",
-        "check_in_date": str(target_date),
+        "check_in_date": str(travel_date),
         "api_key": st.secrets["SERP_API_KEY"]
     }
     try:
