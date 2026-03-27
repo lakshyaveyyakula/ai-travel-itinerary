@@ -39,7 +39,26 @@ def get_events(city):
         return "Event data unavailable"
     except:
         return "Could not connect to event service"
-        
+
+def get_hotels(city, target_date):
+    url = "https://serpapi.com/search.json"
+    params = {
+        "engine": "google_hotels",
+        "q": f"Hotels in {city}",
+        "check_in_date": str(target_date),
+        "api_key": st.secrets["SERP_API_KEY"]
+    }
+    try:
+        r = requests.get(url, params=params)
+        if r.status_code == 200:
+            data = r.json()
+            hotels = data.get("properties", [])
+            names = [h['name'] for h in hotels[:3]]
+            return ", ".join(names) if names else "No hotels found"
+        return "Hotel data unavailable"
+    except:
+        return "Could not connect to hotel service"
+
 SYSTEM_PROMPT = """
 You are a travel assitant chatbot for suggesting places.
 
@@ -74,8 +93,9 @@ if user_input:
 
     weather_info = get_weather(user_input)
     event_info = get_events(user_input)
+    hotel_info = get_hotels(user_input, target_date)
 # Now Gemini knows if it's muggy, cold, or perfect for a hike!
-    conversation = SYSTEM_PROMPT + f"\n[REAL-TIME WEATHER]: {weather_info} | [EVENTS]: {event_info}\n"
+    conversation = SYSTEM_PROMPT + f"\n[REAL-TIME WEATHER]: {weather_info} | [EVENTS]: {event_info} | [HOTELS]: {hotel_info}\n"
     #conversation += f"[REAL-TIME EVENTS]: {event_info}\n"
     #conversation = SYSTEM_PROMPT + f"\n[CONTEXT] Weather: {weather_info} | Hotels: {hotel_info}\n"
     for msg in st.session_state.messages:
