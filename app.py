@@ -20,7 +20,7 @@ def get_weather(city):
     return "Weather data unavailable"
 
 def get_hotels(city):
-    url = "https://serpapi.com/search?engine=google_hotels"
+    url = "https://serpapi.com/search.json"
     params = {
         "engine": "google_hotels",
         "q": f"Hotels in {city}",
@@ -70,8 +70,8 @@ if user_input:
     weather_info = get_weather(user_input)
     hotel_info = get_hotels(user_input)
 # Now Gemini knows if it's muggy, cold, or perfect for a hike!
-    conversation = SYSTEM_PROMPT + f"\n[REAL-TIME WEATHER]: {weather_info}\n"
-    conversation += f"[TOP HOTELS]: {hotel_info}\n"
+    conversation = SYSTEM_PROMPT + f"\n[REAL-TIME WEATHER]: {weather_info}\n[TOP HOTELS]: {hotel_info}\n"
+    #conversation += f"[TOP HOTELS]: {hotel_info}\n"
     #conversation = SYSTEM_PROMPT + f"\n[CONTEXT] Weather: {weather_info} | Hotels: {hotel_info}\n"
     for msg in st.session_state.messages:
         role = msg["role"]
