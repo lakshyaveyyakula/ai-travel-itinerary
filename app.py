@@ -6,6 +6,8 @@ from datetime import date
 st.set_page_config(page_title="AI Travel Planner", layout="centered")
 st.sidebar.header("Trip Timing")
 travel_date = st.sidebar.date_input("When are you visiting?", date.today())
+check_in = st.sidebar.date_input("Check-in Date", date.today())
+check_out = st.sidebar.date_input("Check-out Date", date.today())
 client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
 
 def get_weather(city):
@@ -40,12 +42,13 @@ def get_events(city):
     except:
         return "Could not connect to event service"
 
-def get_hotels(city, travel_date):
+def get_hotels(city, d1, d2):
     url = "https://serpapi.com/search.json"
     params = {
         "engine": "google_hotels",
         "q": f"Hotels in {city}",
-        "check_in_date": str(travel_date),
+        "check_in_date": str(d1),  
+        "check_out_date": str(d2),
         "api_key": st.secrets["SERP_API_KEY"]
     }
     try:
@@ -80,7 +83,7 @@ if user_input:
 
     weather_info = get_weather(user_input)
     event_info = get_events(user_input)
-    hotel_info = get_hotels(user_input, travel_date)
+    hotel_info = get_hotels(user_input, check_in, check_out)
     st.write(f"DEBUG: I found these hotels -> {hotel_info}")
     SYSTEM_PROMPT = f"""
     You are a travel assitant chatbot for suggesting places.
