@@ -20,7 +20,7 @@ def get_weather(city):
     return "Weather data unavailable"
 
 def get_hotels(city):
-    url = "https://serpapi.com/search"
+    url = "https://serpapi.com/search?engine=google_hotels"
     params = {
         "engine": "google_hotels",
         "q": f"Hotels in {city}",
