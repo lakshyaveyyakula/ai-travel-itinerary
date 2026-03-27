@@ -19,19 +19,6 @@ def get_weather(city):
         return f"{data['main']['temp']}°C and {data['weather'][0]['description']}"
     return "Weather data unavailable"
 
-
-def get_hotels(city):
-    url = "https://serpapi.com/search"
-    params = {
-        "engine": "google_hotels",
-        "q": f"Hotels in {city}",
-        "api_key": st.secrets["SERP_API_KEY"]
-    }
-    r = requests.get(url, params=params)
-    if r.status_code == 200:
-        hotels = r.json().get("properties", [])
-        return ", ".join([f"{h['name']} ({h.get('rate_per_night', {}).get('lowest', 'N/A')})" for h in hotels[:3]])
-    return "Hotel data unavailable"
     
 SYSTEM_PROMPT = """
 You are a travel assitant chatbot for suggesting places.
@@ -66,11 +53,11 @@ if user_input:
     st.chat_message("user").markdown(user_input)
 
     weather_info = get_weather(user_input)
-    hotel_info = get_hotels(user_input)
+    
 # Now Gemini knows if it's muggy, cold, or perfect for a hike!
-    #conversation = SYSTEM_PROMPT + f"\n[REAL-TIME WEATHER]: {weather_info}\n"
+    conversation = SYSTEM_PROMPT + f"\n[REAL-TIME WEATHER]: {weather_info}\n"
     #conversation += f"[REAL-TIME EVENTS]: {event_info}\n"
-    conversation = SYSTEM_PROMPT + f"\n[CONTEXT] Weather: {weather_info} | Hotels: {hotel_info}\n"
+    #conversation = SYSTEM_PROMPT + f"\n[CONTEXT] Weather: {weather_info} | Hotels: {hotel_info}\n"
     for msg in st.session_state.messages:
         role = msg["role"]
         content = msg["content"]
